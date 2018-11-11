@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+ <html lang='cs'>
+  <head>
+    <title></title>
+    <meta charset='utf-8'>
+    <meta name='description' content=''>
+    <meta name='keywords' content=''>
+    <meta name='author' content=''>
+    <meta name='robots' content='all'>
+    <!-- <meta http-equiv='X-UA-Compatible' content='IE=edge'> -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='inputs.css') }}" />
+    <script src="{{ url_for('static', filename='jquery.js') }}"></script>
+
+    <script type="text/javascript" charset="utf-8">
+      //this function is called when OFF button is pressed
+      //sends request to power off
+      function sendPowerOff(){
+        $.ajax({
+            contentType: "application/json;charset=UTF-8",
+            url : "{{ url_for('powerOff') }}",
+            type: "POST",
+            data: JSON.stringify({state: "off"})
+        });
+        //reloads the page
+        setTimeout( moveToBlank, 1000)
+
+      }
+
+      function moveToBlank(){
+        window.location.href = "about: blank"
+      }
+
+    </script>
+
+    </script>
+  </head>
+  <body>
+
+    <input class="rotated" id="powerOffButton" type="button" onclick="sendPowerOff();" value="OFF" style="margin-top: 50px; max-width: 160px;"/>
+
+    <div class="rotated" style="width: 640px; height: 1224px;">
+      <img src="{{ url_for('video_stream') }}" height="624" width="896">
+    </div>
+
+    <div style="width: 100%";>
+      <div class="inputs">
+        <form id="percent" class="" action="{{ url_for('getPower') }}" method="post">
+          <input id="pow" type="range" min="-120" max="120" value="1" style="width: 100%;"/>
+          <input name="temp" type="hidden" />
+        </form>
+
+        <form id="percent" action="{{ url_for('getNumber') }}" method="post">
+          <input id="val" type="hidden" min="60" max="81" value="75"/>
+          <input name="temp" type="hidden" />
+        </form>
+      </div>
+    </div>
+
+    <br>
+
+
+    <input id="Debug" type="hidden" value="0">
+
+  	<script src="{{ url_for('static', filename='getAccelData.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='turn.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='socket.io.min.js') }}"></script>
+
+    <script>
+    var power = 0;
+    theInput = document.getElementById('pow')
+    setInterval(function() {
+
+      if(theInput.value > 0){
+          power = parseInt(theInput.value) + 55;}
+      else {if(theInput.value < 0){
+          power = theInput.value - 55;}
+  	}
+
+      $.ajax({
+          contentType: "application/json;charset=UTF-8",
+          url : "{{ url_for('getPower') }}",
+          type: "POST",
+          data: JSON.stringify({pow: power})
+      });
+    }, 250);
+
+
+    $( "#pow" ).on("mouseup touchend", function() {
+        document.getElementById('pow').value = 1;
+      });
+
+
+    </script>
+
+    <style>
+
+
+    .rotated {
+        transform:rotate(90deg);
+        -webkit-transform:rotate(90deg);
+        -moz-transform:rotate(90deg);
+        -o-transform:rotate(90deg);
+    }
+
+    .notRotated {
+        transform:rotate(0deg);
+        -webkit-transform:rotate(0deg);
+        -moz-transform:rotate(0deg);
+        -o-transform:rotate(0deg);
+    }
+
+    input[type=range][orient=vertical]
+    {
+        writing-mode: bt-lr; /* IE */
+        -webkit-appearance: slider-vertical; /* WebKit */
+    }
+
+    </style>
+
+  </body>
+
+</html>
