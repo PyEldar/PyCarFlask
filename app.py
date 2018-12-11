@@ -1,16 +1,17 @@
 #!/usr/bin/env python
-from flask import Flask, render_template, Response
-from flask import request
-import pigpio #Handling I/O ports
-from PIcamera import Camera #Camera class which handles camera events and so on
-from flask_socketio import SocketIO, emit
-from Car import Car
 from threading import Lock
 import time
 
+from flask import Flask, render_template, Response
+from flask import request
+from flask_socketio import SocketIO
+
+from PIcamera import Camera  # Camera class which handles camera events
+from Car import Car
+
 app = Flask(__name__)
 socketio = SocketIO(app, async_mode="eventlet", engineio_logger=False)
-carRPi = Car() #car instance for controling motors and servo
+carRPi = Car()  # car instance for controling motors and servo
 thread_lock = Lock()
 
 
@@ -39,11 +40,11 @@ def powerOff():
             if state == "off":
                 from subprocess import call
                 time.sleep(2)
-                #first stop the car
+                # first stop the car
                 carRPi.stop()
-                #and center the wheels
+                # and center the wheels
                 carRPi.turn(70)
-                #now shutdown
+                # now shutdown
                 call("sudo shutdown -h now", shell=True)
 
             return Response("Good")
@@ -99,7 +100,7 @@ def video_stream():
         with thread_lock:
             cam.activeClient = True
             print("Sending frames")
-        #sends the header information about response type and generator then continues is sending frames
+        # sends the header information about response type and generator then continues is sending frames
         return Response(streamGen(cam),
                         mimetype='multipart/x-mixed-replace; boundary=jpg')
 
@@ -109,14 +110,14 @@ def video_stream():
 @socketio.on('turn', namespace="/controll")
 def makeTurn(data):
     val = data["val"]
-    #print("val:", val)
+    # print("val:", val)
     carRPi.turn(val)
 
 
 @socketio.on("speed", namespace="/controll")
 def setSpeed(data):
     pow = data["pow"]
-    #print("pow:", pow)
+    # print("pow:", pow)
     carRPi.setSpeed(pow)
 
 
@@ -131,8 +132,8 @@ def streamGen(camera):
 if __name__ == '__main__':
     app.debug = True
 
-    #create camera instance
+    # create camera instance
     cam = Camera(carRPi)
     cam.activeClient = False
-    #run server on default port - 5000
+    # run server on default port - 5000
     socketio.run(app, debug=True, host='0.0.0.0', use_reloader=False)

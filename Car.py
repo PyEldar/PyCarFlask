@@ -1,5 +1,6 @@
 import pigpio
 
+
 class Car():
     def __init__(self):
         self.pi2 = pigpio.pi()
@@ -10,17 +11,17 @@ class Car():
         try:
                 set = int(float(num)*1000)
                 print("servo gets:", set)
-        except:
+        except ValueError:
                 set = 70000
 
         if set < 61000:
-            self.pi2.hardware_PWM(18,50,61000)
+            self.pi2.hardware_PWM(18, 50, 61000)
 
         elif set > 80000:
-            self.pi2.hardware_PWM(18,50,80000)
+            self.pi2.hardware_PWM(18, 50, 80000)
 
         else:
-            self.pi2.hardware_PWM(18,50,set)
+            self.pi2.hardware_PWM(18, 50, set)
 
     def setSpeed(self, pow):
         pi2 = self.pi2
@@ -32,7 +33,7 @@ class Car():
 
         pow = abs(pow)
         if pow > 90:
-            #change direction to numbers then use the numbers here instread of direction in strings
+            # change direction to numbers then use the numbers here instread of direction in strings
             if direction == "forw":
                 pi2.write(27, 1)
                 pi2.write(22, 0)
